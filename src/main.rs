@@ -30,7 +30,7 @@ fn compile() {
 
 #[cfg(not(target_os = "macos"))]
 fn compile() {
-    compile_cpp("-m32");
+    compile_cpp("-m32".to_string());
 }
 
 fn git() {
