@@ -189,7 +189,7 @@ fn problem(contest: &String, problem: &String) -> String {
 }
 
 fn help() {
-    println!("Usage cf [command] <args>
+    println!("Usage cf [command] <args...>
 
         r, round - create round folder
             <contest> is mandatory
@@ -201,7 +201,8 @@ fn help() {
 
         c, compile - build solutuon binary
         g, git - commit & push solution sources
-    ");
+
+More details here: https://github.com/proydakov/coderust");
 }
 
 fn main() {
