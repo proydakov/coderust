@@ -68,13 +68,7 @@ fn git() {
         .expect("can't start git");
 }
 
-#[cfg(target_os = "windows")]
-fn binary_name() -> String {
-    return "./solution.exe".to_string();
-}
-
-#[cfg(not(target_os = "windows"))]
-fn binary_name() -> String {
+fn binary_name_cpp() -> String {
     return "./solution".to_string();
 }
 
@@ -89,7 +83,7 @@ fn verify() {
             break;
         }
 
-        let mut child = Command::new(binary_name())
+        let mut child = Command::new(binary_name_cpp())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
