@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 ureq = { version = "*" }
+colored = { version = "2" }

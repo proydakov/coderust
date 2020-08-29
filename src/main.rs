@@ -1,9 +1,10 @@
 use std::fs;
 use std::env;
-use std::process::Command;
-
-use std::fs::File;
 use std::io::Write;
+use std::path::Path;
+use std::process::{Command, Stdio};
+
+use colored::*;
 
 fn compile_cpp(extra: &str) {
     let mut command = Command::new("clang++");
@@ -67,7 +68,76 @@ fn git() {
         .expect("can't start git");
 }
 
-fn round(contest: &String) {
+#[cfg(target_os = "windows")]
+fn binary_name() -> String {
+    return "./solution.exe".to_string();
+}
+
+#[cfg(not(target_os = "windows"))]
+fn binary_name() -> String {
+    return "./solution".to_string();
+}
+
+fn verify() {
+    compile();
+
+    for i in 1..1000000 {
+        let input = format!("in_{}.txt", i);
+        let output = format!("out_{}.txt", i);
+
+        if !Path::new(&input).exists() || !Path::new(&output).exists() {
+            break;
+        }
+
+        let mut child = Command::new(binary_name())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process");
+
+        {
+            let input_content = fs::read_to_string(&input).unwrap();
+            let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+            stdin.write_all(input_content.as_bytes()).unwrap();
+        }
+
+        let child_output = child.wait_with_output().expect("Failed to read stdout");
+        let real_content = String::from_utf8_lossy(&child_output.stdout);
+        let mut real_lines = real_content.lines();
+
+        let etalon_content = fs::read_to_string(&output).unwrap();
+        let mut etalon_lines = etalon_content.lines();
+
+        let mut res = true;
+        loop {
+            let line_et = etalon_lines.next();
+            let line_re = real_lines.next();
+            if line_et == None && line_re == None {
+                break;
+            }
+
+            if line_et == None || line_re == None {
+                res = false;
+                break;
+            }
+
+            if line_et.unwrap().trim() != line_re.unwrap().trim() {
+                res = false;
+                break;
+            }
+        }
+
+        let test_str = format!("Check {}/{}", &input, &output);
+        if res {
+            println!("{}", test_str.green());
+        }
+        else {
+            println!("{}", test_str.red());
+        }
+    }
+}
+
+fn round(contest: &String) -> String {
     let url = format!("https://codeforces.com/contest/{:?}", contest);
     let body = ureq::get(&url).call().into_string().unwrap();
     let pat = format!("href=\"/contest/{}\">", contest);
@@ -77,7 +147,7 @@ fn round(contest: &String) {
     let path = &body[index_begin + pat.len() .. index_begin + offset].replace(" ", "_");
     println!("from: {} to: {} data: {:?}", index_begin, index_begin + offset, path);
     let _ = fs::create_dir(path);
-    println!("{}", path)
+    return path.to_string();
 }
 
 fn pre_content(slice: &str) -> String {
@@ -91,17 +161,17 @@ fn pre_content(slice: &str) -> String {
     return text;
 }
 
-fn problem(contest: &String, problem: &String) {
+fn problem(contest: &String, problem: &String) -> String {
     let url = format!("https://codeforces.com/problemset/problem/{:?}/{:?}", contest, problem);
     let body = ureq::get(&url).call().into_string().unwrap();
     let pat_sample = "<div class=\"sample-test\">";
     let pat_input = "<div class=\"input\">";
     let pat_output = "<div class=\"output\">";
-   let sample_index = body.find(&pat_sample).unwrap();
+    let sample_index = body.find(&pat_sample).unwrap();
     let mut slice = &body[sample_index..];
 
-    let upproblem = &problem.to_uppercase();
-    let _ = fs::create_dir(upproblem);
+    let upproblem = problem.to_uppercase();
+    let _ = fs::create_dir(&upproblem);
 
     for i in 1..1000000 {
         let input_index = slice.find(&pat_input);
@@ -118,12 +188,10 @@ fn problem(contest: &String, problem: &String) {
         slice = &slice[output_index.unwrap()..];
         let output = pre_content(slice);
 
-        println!("input len: {} data: \n{}", input.len(), input);
-        println!("output len: {} data: \n{}", output.len(), output);
-
-        fs::write(format!("{}/input_{}.txt", upproblem, i), input).unwrap();
-        fs::write(format!("{}/output_{}.txt", upproblem, i), output).unwrap();
+        fs::write(format!("{}/in_{}.txt", upproblem, i), input).unwrap();
+        fs::write(format!("{}/out_{}.txt", upproblem, i), output).unwrap();
     }
+    return upproblem;
 }
 
 fn help() {
@@ -134,6 +202,8 @@ fn help() {
 
         p, problem - download test data
             <contest> and <problem> are mandatory
+
+        v, verify - compile & verify solution
 
         c, compile - build solutuon binary
         g, git - commit & push solution sources
@@ -163,9 +233,17 @@ fn main() {
                 help();
             }
         }
+        else if command == "v" || command == "verify" {
+            if args.len() == 2 {
+                verify();
+            }
+            else {
+                help();
+            }
+        }
         else if command == "r" || command == "round" {
             if args.len() == 3 {
-                round(&args[2]);
+                println!("{}", round(&args[2]));
             }
             else {
                 help();
@@ -173,7 +251,7 @@ fn main() {
         }
         else if command == "p" || command == "problem" {
             if args.len() == 4 {
-                problem(&args[2], &args[3]);
+                println!("{}", problem(&args[2], &args[3]));
             }
             else {
                 help();
