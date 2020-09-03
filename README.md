@@ -6,7 +6,7 @@ My command line tool to improve coding on codeforces.
 
     Usage cf [command] <args...>
 
-        r, round - create round folder
+        f, folder - create round folder
             <contest> is mandatory
 
         p, problem - download test data

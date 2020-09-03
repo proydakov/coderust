@@ -131,7 +131,7 @@ fn verify() {
     }
 }
 
-fn round(contest: &String) -> String {
+fn folder(contest: &String) -> String {
     let url = format!("https://codeforces.com/contest/{:?}", contest);
     let body = ureq::get(&url).call().into_string().unwrap();
     let pat = format!("href=\"/contest/{}\">", contest);
@@ -191,7 +191,7 @@ fn problem(contest: &String, problem: &String) -> String {
 fn help() {
     println!("Usage cf [command] <args...>
 
-        r, round - create round folder
+        f, folder - create round folder
             <contest> is mandatory
 
         p, problem - download test data
@@ -236,9 +236,9 @@ fn main() {
                 help();
             }
         }
-        else if command == "r" || command == "round" {
+        else if command == "f" || command == "folder" {
             if args.len() == 3 {
-                println!("{}", round(&args[2]));
+                println!("{}", folder(&args[2]));
             }
             else {
                 help();
