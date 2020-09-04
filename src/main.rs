@@ -228,7 +228,7 @@ fn help() {
             <contest> and <problem> are mandatory
 
         r, round - create round folder and download all problems test data
-            <contest>
+            <contest> is mandatory
 
         v, verify - build & verify solution
 
