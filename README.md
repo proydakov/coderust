@@ -17,10 +17,10 @@ My command line tool to improve coding on codeforces.
         r, round - create round folder and download all problems test data
             <contest> is mandatory
 
-        v, verify - build & verify solution
-
-        t, template - create template
+        t, template - create solution source from template
             <name> is mandatory
+
+        v, verify - build & verify solution
 
         c, compile - build solutuon binary
 

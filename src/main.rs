@@ -219,7 +219,10 @@ fn round(contest: &str, init_problems: bool) -> String {
 }
 
 fn template(fname: &str) {
-    fs::copy(format!("../../templates/{}.cpp", fname), "solution.cpp").unwrap();
+    let from = format!("../../templates/{}.cpp", fname);
+    let to = "solution.cpp";
+    println!("copy: {} -> {}", &from, &to);
+    fs::copy(&from, &to).unwrap();
 }
 
 fn help() {
@@ -234,12 +237,12 @@ fn help() {
         r, round - create round folder and download all problems test data
             <contest> is mandatory
 
+        t, template - create solution source from template
+            <name> is mandatory
+
         v, verify - build & verify solution
 
         c, compile - build solutuon binary
-
-        t, template - create template
-            <name> is mandatory
 
         g, git - commit & push solution sources
 
