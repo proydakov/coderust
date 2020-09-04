@@ -131,19 +131,6 @@ fn verify() {
     }
 }
 
-fn folder(contest: &String) -> String {
-    let url = format!("https://codeforces.com/contest/{:?}", contest);
-    let body = ureq::get(&url).call().into_string().unwrap();
-    let pat = format!("href=\"/contest/{}\">", contest);
-    println!("search: {} in {} bytes", pat, body.len());
-    let index_begin = body.find(&pat).unwrap();
-    let offset = body[index_begin..].find(" (").unwrap();
-    let path = &body[index_begin + pat.len() .. index_begin + offset].replace(" ", "_");
-    println!("from: {} to: {} data: {:?}", index_begin, index_begin + offset, path);
-    let _ = fs::create_dir(path);
-    return path.to_string();
-}
-
 fn pre_content(slice: &str) -> String {
     let pre_begin = slice.find("<pre>").unwrap();
     let pre_end = slice.find("</pre>").unwrap();
@@ -155,9 +142,7 @@ fn pre_content(slice: &str) -> String {
     return text;
 }
 
-fn problem(contest: &String, problem: &String) -> String {
-    let url = format!("https://codeforces.com/problemset/problem/{:?}/{:?}", contest, problem);
-    let body = ureq::get(&url).call().into_string().unwrap();
+fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
     let pat_sample = "<div class=\"sample-test\">";
     let pat_input = "<div class=\"input\">";
     let pat_output = "<div class=\"output\">";
@@ -165,27 +150,72 @@ fn problem(contest: &String, problem: &String) -> String {
     let mut slice = &body[sample_index..];
 
     let upproblem = problem.to_uppercase();
-    let _ = fs::create_dir(&upproblem);
+    let _ = fs::create_dir(format!("{}/{}", folder, upproblem));
 
-    for i in 1..1000000 {
+    let mut done = false;
+    let mut index = 1;
+    while !done {
         let input_index = slice.find(&pat_input);
         if input_index == None {
-            break;
+            done = true;
+            continue;
         }
         slice = &slice[input_index.unwrap()..];
         let input = pre_content(slice);
 
         let output_index = slice.find(&pat_output);
         if output_index == None {
-            break;
+            done = true;
+            continue;
         }
         slice = &slice[output_index.unwrap()..];
         let output = pre_content(slice);
 
-        fs::write(format!("{}/in_{}.txt", upproblem, i), input).unwrap();
-        fs::write(format!("{}/out_{}.txt", upproblem, i), output).unwrap();
+        fs::write(format!("{}/{}/in_{}.txt", folder, upproblem, index), input).unwrap();
+        fs::write(format!("{}/{}/out_{}.txt", folder, upproblem, index), output).unwrap();
+        index = index + 1;
     }
     return upproblem;
+}
+
+fn problem(contest: &str, problem: &str) -> String {
+    let url = format!("https://codeforces.com/problemset/problem/{}/{}", contest, problem);
+    let body = ureq::get(&url).call().into_string().unwrap();
+
+    return save_problem_content(&body, ".", problem);
+}
+
+fn round(contest: &str, init_problems: bool) -> String {
+    let url = format!("https://codeforces.com/contest/{}/problems", contest);
+    let body = ureq::get(&url).call().into_string().unwrap();
+    let pat_caption = "class=\"caption\">";
+    let pat_problem = "problemindex=\"";
+
+    let caption_index = body.find(&pat_caption).unwrap();
+    let mut slice = &body[caption_index..];
+    let end_caption_index = slice.find(" (").unwrap();
+    
+    let rname = slice[pat_caption.len()..end_caption_index].replace(" ", "_");
+    let _ = fs::create_dir(&rname);
+
+    fs::write(format!("{}/.meta", rname), contest).unwrap();
+
+    let mut done = false;
+    while init_problems && !done {
+        let problem_index = slice.find(pat_problem);
+        if problem_index == None {
+            done = true;
+            continue;
+        }
+        slice = &slice[problem_index.unwrap() + pat_problem.len()..];
+        let problem_end_index = slice.find("\"");
+        let pname = &slice[..problem_end_index.unwrap()];
+        let next_problem_index = slice.find(pat_problem).unwrap_or(slice.len());
+        let problem_view = &slice[..next_problem_index];
+        save_problem_content(problem_view, &rname, pname);
+    }
+
+    return rname;
 }
 
 fn help() {
@@ -197,7 +227,10 @@ fn help() {
         p, problem - download test data
             <contest> and <problem> are mandatory
 
-        v, verify - compile & verify solution
+        r, round - create round folder and download all problems test data
+            <contest>
+
+        v, verify - build & verify solution
 
         c, compile - build solutuon binary
         g, git - commit & push solution sources
@@ -238,7 +271,15 @@ fn main() {
         }
         else if command == "f" || command == "folder" {
             if args.len() == 3 {
-                println!("{}", folder(&args[2]));
+                println!("{}", round(&args[2], false));
+            }
+            else {
+                help();
+            }
+        }
+        else if command == "r" || command == "round" {
+            if args.len() == 3 {
+                println!("{}", round(&args[2], true));
             }
             else {
                 help();

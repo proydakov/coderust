@@ -12,7 +12,10 @@ My command line tool to improve coding on codeforces.
         p, problem - download test data
             <contest> and <problem> are mandatory
 
-        v, verify - compile & verify solution
+        r, round - create round folder and download all problems test data
+            <contest>
+
+        v, verify - build & verify solution
 
         c, compile - build solutuon binary
         g, git - commit & push solution sources
