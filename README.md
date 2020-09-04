@@ -19,6 +19,10 @@ My command line tool to improve coding on codeforces.
 
         v, verify - build & verify solution
 
+        t, template - create template
+            <name> is mandatory
+
         c, compile - build solutuon binary
+
         g, git - commit & push solution sources
 

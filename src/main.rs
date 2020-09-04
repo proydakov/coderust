@@ -218,6 +218,10 @@ fn round(contest: &str, init_problems: bool) -> String {
     return rname;
 }
 
+fn template(fname: &str) {
+    fs::copy(format!("../../templates/{}.cpp", fname), "solution.cpp").unwrap();
+}
+
 fn help() {
     println!("Usage cf [command] <args...>
 
@@ -233,6 +237,10 @@ fn help() {
         v, verify - build & verify solution
 
         c, compile - build solutuon binary
+
+        t, template - create template
+            <name> is mandatory
+
         g, git - commit & push solution sources
 
 More details here: https://github.com/proydakov/coderust");
@@ -288,6 +296,14 @@ fn main() {
         else if command == "p" || command == "problem" {
             if args.len() == 4 {
                 println!("{}", problem(&args[2], &args[3]));
+            }
+            else {
+                help();
+            }
+        }
+        else if command == "t" || command == "template" {
+            if args.len() == 3 {
+                template(&args[2]);
             }
             else {
                 help();
