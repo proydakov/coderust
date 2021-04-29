@@ -183,14 +183,14 @@ fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
 
 fn problem(contest: &str, problem: &str) -> String {
     let url = format!("{}/problemset/problem/{}/{}", BASEURL, contest, problem);
-    let body = ureq::get(&url).call().into_string().unwrap();
+    let body = ureq::get(&url).call().unwrap().into_string().unwrap();
 
     return save_problem_content(&body, ".", problem);
 }
 
 fn round(contest: &str, init_problems: bool) -> String {
     let url = format!("{}/contest/{}/problems", BASEURL, contest);
-    let body = ureq::get(&url).call().into_string().unwrap();
+    let body = ureq::get(&url).call().unwrap().into_string().unwrap();
     let pat_caption = "class=\"caption\">";
     let pat_problem = "problemindex=\"";
 
