@@ -185,7 +185,18 @@ fn problem(contest: &str, problem: &str) -> String {
     let url = format!("{}/problemset/problem/{}/{}", BASEURL, contest, problem);
     let body = ureq::get(&url).call().unwrap().into_string().unwrap();
 
-    return save_problem_content(&body, ".", problem);
+    let pname = save_problem_content(&body, ".", problem);
+    template("2", "..", &pname, false);
+    return pname;
+}
+
+fn template(fname: &str, srcdir: &str, dstdir: &str, trace: bool) {
+    let from = format!("{}/templates/{}.cpp", srcdir, fname);
+    let to = format!("{}/solution.cpp", dstdir);
+    if trace {
+        println!("copy: {} -> {}", &from, &to);
+    }
+    fs::copy(&from, &to).unwrap();
 }
 
 fn round(contest: &str, init_problems: bool) -> String {
@@ -218,16 +229,10 @@ fn round(contest: &str, init_problems: bool) -> String {
         let next_problem_index = slice.find(pat_problem).unwrap_or(slice.len());
         let problem_view = &slice[..next_problem_index];
         save_problem_content(problem_view, &rname, pname);
+        template("2", "..", pname, false);
     }
 
     return rname;
-}
-
-fn template(fname: &str) {
-    let from = format!("../../templates/{}.cpp", fname);
-    let to = "solution.cpp";
-    println!("copy: {} -> {}", &from, &to);
-    fs::copy(&from, &to).unwrap();
 }
 
 fn help() {
@@ -311,7 +316,7 @@ fn main() {
         }
         else if command == "t" || command == "template" {
             if args.len() == 3 {
-                template(&args[2]);
+                template(&args[2], "../..", ".", true);
             }
             else {
                 help();
