@@ -208,7 +208,7 @@ fn round(contest: &str, init_problems: bool) -> String {
     let caption_index = body.find(&pat_caption).unwrap();
     let mut slice = &body[caption_index..];
     let end_caption_index_symbol = slice.find(" (").unwrap();
-    let end_caption_index_div= slice.find("</div>").unwrap();
+    let end_caption_index_div = slice.find("</div>").unwrap();
     let end_caption_index = cmp::min(end_caption_index_symbol, end_caption_index_div);
  
     let rname = slice[pat_caption.len()..end_caption_index].replace(" ", "_");
