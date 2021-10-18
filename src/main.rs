@@ -181,9 +181,20 @@ fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
     return upproblem;
 }
 
+fn calc_cookie() -> String {
+    return String::from("RCPC=8e834f75fee8c35b3c39442fae7c146e")
+}
+
 fn problem(contest: &str, problem: &str) -> String {
     let url = format!("{}/problemset/problem/{}/{}", BASEURL, contest, problem);
-    let body = ureq::get(&url).call().unwrap().into_string().unwrap();
+    
+    let agent = ureq::agent();
+    let body = agent.get(&url)
+        .set("Cookie", &calc_cookie())
+        .call()
+        .unwrap()
+        .into_string()
+        .unwrap();
 
     let pname = save_problem_content(&body, ".", problem);
     template("2", "..", &pname, false);
@@ -200,8 +211,16 @@ fn template(fname: &str, srcdir: &str, dstdir: &str, trace: bool) {
 }
 
 fn round(contest: &str, init_problems: bool) -> String {
-    let url = format!("{}/contest/{}/problems", BASEURL, contest);
-    let body = ureq::get(&url).call().unwrap().into_string().unwrap();
+    let url = format!("{}/contest/{}/problems?f0a28=1", BASEURL, contest);
+
+    let agent = ureq::agent();
+
+    let body = agent.get(&url)
+        .set("Cookie", &calc_cookie())
+        .call()
+        .unwrap()
+        .into_string()
+        .unwrap();
     let pat_caption = "class=\"caption\">";
     let pat_problem = "problemindex=\"";
 
