@@ -13,7 +13,7 @@ fn compile_cpp(extra: &str) {
     let mut command = Command::new("clang++");
 
     command
-        .arg("-std=c++17")
+        .arg("-std=c++20")
         .arg("-Wall")
         .arg("-Wextra")
         .arg("-O2")
