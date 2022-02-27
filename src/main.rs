@@ -31,14 +31,8 @@ fn compile_cpp(extra: &str) {
         .expect("can't start clang++");
 }
 
-#[cfg(target_os = "macos")]
 fn compile() {
     compile_cpp("");
-}
-
-#[cfg(not(target_os = "macos"))]
-fn compile() {
-    compile_cpp("-m32");
 }
 
 fn git() {
