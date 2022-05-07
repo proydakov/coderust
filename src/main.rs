@@ -176,7 +176,7 @@ fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
 }
 
 fn calc_cookie() -> String {
-    return String::from("RCPC=8e834f75fee8c35b3c39442fae7c146e")
+    return String::from("RCPC=79bc60e7a03b8c9c0c253dfaa5407ec5")
 }
 
 fn problem(contest: &str, problem: &str) -> String {
