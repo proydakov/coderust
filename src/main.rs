@@ -1,6 +1,7 @@
 use std::fs;
 use std::env;
 use std::cmp;
+use regex::Regex;
 use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -135,8 +136,13 @@ fn pre_content(slice: &str) -> String {
     let text = raw_text
         .replace("<br/>", "\n")
         .replace("<br />", "\n")
+        .replace("</div>", "\n")
         .trim().to_string();
-    return text;
+    let re1 = Regex::new("<div class=\"test-example-line test-example-line-even test-example-line-[0-9]\">").unwrap();
+    let re2 = Regex::new("<div class=\"test-example-line test-example-line-odd test-example-line-[0-9]\">").unwrap();
+    let t1 = re1.replace_all(&text, "");
+    let t2 = re2.replace_all(&t1, "");
+    return t2.to_string();
 }
 
 fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
