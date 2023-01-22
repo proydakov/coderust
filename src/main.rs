@@ -176,7 +176,7 @@ fn save_problem_content(body: &str, folder: &str, problem: &str) -> String {
 }
 
 fn calc_cookie() -> String {
-    return String::from("RCPC=79bc60e7a03b8c9c0c253dfaa5407ec5")
+    return String::from("JSESSIONID=AA1CA98F87F1795DCFB80B9A70C66A79-n1")
 }
 
 fn problem(contest: &str, problem: &str) -> String {
