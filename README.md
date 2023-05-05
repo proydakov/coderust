@@ -1,6 +1,6 @@
 # coderust
 
-[![Travis CI Status](https://travis-ci.org/proydakov/coderust.svg?branch=master)](https://travis-ci.org/proydakov/coderust)
+[![rust](https://github.com/proydakov/coderust/actions/workflows/rust.yml/badge.svg)](https://github.com/proydakov/coderust/actions/workflows/rust.yml)
 
 My command line tool to improve coding on codeforces.
 
